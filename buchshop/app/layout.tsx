@@ -1,5 +1,9 @@
 import Link from "next/link";
 
+import { CartProvider } from "./context/CartContext";
+
+import CartIndicator from "./components/CartIndicatir";
+
 import "./globals.css";
  
 export const metadata = {
@@ -21,29 +25,20 @@ export default function RootLayout({
   return (
 <html lang="de">
 <body className="bg-gray-100">
-<nav className="bg-white shadow p-4 flex gap-6">
+<CartProvider>
+<nav className="bg-white shadow p-4 flex items-center gap-6">
 <Link href="/" className="font-semibold">
 
-            Bücher
+              Bücher
 </Link>
-<Link href="/kunden">
-
-            Kunden
-</Link>
-<Link href="/bestellungen">
-
-            Bestellungen
-</Link>
-<Link href="/dashboard">
-
-            Dashboard
-</Link>
+ 
+            <div className="ml-auto">
+<CartIndicator />
+</div>
 </nav>
  
-        <div className="p-8">
-
-          {children}
-</div>
+          <div className="p-8">{children}</div>
+</CartProvider>
 </body>
 </html>
 

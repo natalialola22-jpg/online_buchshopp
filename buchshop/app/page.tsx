@@ -1,20 +1,16 @@
+import { pool } from "@/lib/db";
+
 import Link from "next/link";
- 
-async function getBuecher() {
-
-  const res = await fetch("http://localhost:3000/api/buecher", {
-
-    cache: "no-store",
-
-  });
- 
-  return res.json();
-
-}
  
 export default async function Home() {
 
-  const buecher = await getBuecher();
+  const result = await pool.query(
+
+    "SELECT buch_id, titel, preis FROM buch ORDER BY buch_id;"
+
+  );
+ 
+  const buecher = result.rows;
  
   return (
 <main className="min-h-screen p-10 bg-gray-100">
