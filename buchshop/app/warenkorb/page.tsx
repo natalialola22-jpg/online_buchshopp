@@ -1,66 +1,105 @@
 "use client";
  
-import { useCart } from "../context/CartContext";
+import { useCart } from "@/app/context/CartContext";
 
 import Link from "next/link";
  
 export default function Warenkorb() {
 
-  const { cart } = useCart();
+  const { cart, increase, decrease, remove } = useCart();
  
   const gesamtpreis = cart.reduce(
 
-    (sum, item) => sum + item.preis,
+    (sum, item) => sum + item.preis * item.menge,
 
     0
 
   );
  
+  if (cart.length === 0) {
+
+    return <p>Dein Warenkorb ist leer.</p>;
+
+  }
+ 
   return (
-<main className="min-h-screen p-10 bg-gray-100">
+<main className="p-10">
 <h1 className="text-3xl font-bold mb-8">
 
         Warenkorb
 </h1>
  
-      {cart.length === 0 ? (
-<p>Dein Warenkorb ist leer.</p>
+      <div className="space-y-4">
 
-      ) : (
-<>
-<div className="space-y-4">
-
-            {cart.map((item, index) => (
+        {cart.map((item) => (
 <div
 
-                key={index}
+            key={item.buch_id}
 
-                className="bg-white p-4 rounded shadow flex justify-between"
+            className="bg-white p-4 rounded shadow flex justify-between items-center"
 >
-<span>{item.titel}</span>
-<span>{item.preis} €</span>
-</div>
+<div>
+<div className="font-semibold">
 
-            ))}
+                {item.titel}
+</div>
+<div>{item.preis} €</div>
 </div>
  
-          <div className="mt-6 text-xl font-semibold">
+            <div className="flex items-center gap-3">
+<button
 
-            Gesamt: {gesamtpreis.toFixed(2)} €
-</div>
- 
-          <Link
+                onClick={() => decrease(item.buch_id)}
 
-            href="/checkout"
-
-            className="inline-block mt-6 bg-black text-white px-6 py-2 rounded"
+                className="px-3 py-1 bg-gray-200 rounded"
 >
 
-            Zur Kasse
+                −
+</button>
+ 
+              <span>{item.menge}</span>
+ 
+              <button
+
+                onClick={() => increase(item.buch_id)}
+
+                className="px-3 py-1 bg-gray-200 rounded"
+>
+
+                +
+</button>
+ 
+              <button
+
+                onClick={() => remove(item.buch_id)}
+
+                className="text-red-500 ml-4"
+>
+
+                Entfernen
+</button>
+</div>
+</div>
+
+        ))}
+</div>
+ 
+      <div className="mt-8 flex justify-between items-center">
+<div className="text-xl font-semibold">
+
+          Gesamt: {gesamtpreis.toFixed(2)} €
+</div>
+ 
+        <Link
+
+          href="/checkout"
+
+          className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition"
+>
+
+          Zur Kasse
 </Link>
-</>
-
-      )}
+</div>
 </main>
 
   );
