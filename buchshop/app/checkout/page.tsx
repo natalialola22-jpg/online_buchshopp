@@ -1,68 +1,37 @@
-"use client";
+import { cookies } from "next/headers";
+
+import { pool } from "@/lib/db";
+
+import CheckoutForm from "./CheckoutForm";
  
-import { useCart } from "@/app/context/CartContext";
-
-import { useRouter } from "next/navigation";
+export default async function CheckoutPage() {
  
-export default function Checkout() {
+  const cookieStore = await cookies();
 
-  const { cart,clearCart } = useCart();
-
-  const router = useRouter();
+  const userId = cookieStore.get("user_id");
  
-  const gesamtpreis = cart.reduce(
-
-    (sum, item) => sum + item.preis,
-
-    0
-
-  );
+  let kunde = null;
  
-  async function handleCheckout() {
-
-    await fetch("/api/bestellung", {
-
-      method: "POST",
-
-      headers: { "Content-Type": "application/json" },
-
-      body: JSON.stringify({ items: cart }),
-
-    });
-    clearCart();
+  if (userId) {
  
-    router.push("/erfolg");
+    const result = await pool.query(
 
-  }
+      `SELECT kunden_vorname, kunden_nachname, email, adresse, iban
+
+       FROM kunde
+
+       WHERE kunden_id = $1`,
+
+      [userId.value]
+
+    );
  
-  if (cart.length === 0) {
-
-    return <p>Warenkorb ist leer.</p>;
+    kunde = result.rows[0];
 
   }
  
   return (
-<main className="p-10">
-<h1 className="text-2xl font-bold mb-6">
-
-        Checkout
-</h1>
- 
-      <div className="mb-4">
-
-        Gesamt: {gesamtpreis.toFixed(2)} €
-</div>
- 
-      <button
-
-        onClick={handleCheckout}
-
-        className="bg-black text-white px-6 py-2 rounded"
->
-
-        Bestellung abschließen
-</button>
-</main>
+<CheckoutForm kunde={kunde}/>
 
   );
 
