@@ -1,7 +1,6 @@
 "use client";
  
 import { useState } from "react";
-
 import { useCart } from "../context/CartContext";
  
 export default function CheckoutForm({ kunde }: any) {
@@ -9,13 +8,9 @@ export default function CheckoutForm({ kunde }: any) {
   const { cart, clearCart } = useCart();
  
   const [vorname, setVorname] = useState(kunde?.kunden_vorname || "");
-
   const [nachname, setNachname] = useState(kunde?.kunden_nachname || "");
-
   const [email, setEmail] = useState(kunde?.email || "");
-
   const [adresse, setAdresse] = useState(kunde?.adresse || "");
-
   const [iban, setIban] = useState(kunde?.iban || "");
  
   const [saveData, setSaveData] = useState(false);
@@ -25,56 +20,56 @@ export default function CheckoutForm({ kunde }: any) {
     e.preventDefault();
  
     if (!iban) {
-
       alert("Bitte IBAN eingeben");
-
       return;
-
     }
  
-    const res = await fetch("/api/bestellung", {
+    try {
  
-      method: "POST",
+      const res = await fetch("/api/bestellung", {
  
-      headers: {
-
-        "Content-Type": "application/json"
-
-      },
+        method: "POST",
  
-      body: JSON.stringify({
- 
-        items: cart,
- 
-        kunde: {
-
-          vorname,
-
-          nachname,
-
-          email,
-
-          adresse,
-
-          iban
-
+        headers: {
+          "Content-Type": "application/json"
         },
  
-        saveAddress: saveData
+        body: JSON.stringify({
  
-      })
+          items: cart,
  
-    });
+          kunde: {
+            vorname,
+            nachname,
+            email,
+            adresse,
+            iban
+          },
  
-    if (res.ok) {
+          saveAddress: saveData
  
-      clearCart();
+        })
  
-      window.location.href = "/erfolg";
+      });
  
-    } else {
+      const data = await res.json();
  
-      alert("Bestellung fehlgeschlagen");
+      if (data.success) {
+ 
+        clearCart();
+ 
+        window.location.href = "/erfolg";
+ 
+      } else {
+ 
+        alert(data.error || "Bestellung fehlgeschlagen");
+ 
+      }
+ 
+    } catch (error) {
+ 
+      console.error(error);
+      alert("Serverfehler bei der Bestellung");
  
     }
  
@@ -85,92 +80,57 @@ export default function CheckoutForm({ kunde }: any) {
     <main className="max-w-lg mx-auto bg-white p-6 rounded shadow">
  
       <h1 className="text-xl font-bold mb-6">
-
         Bestellung abschließen
 </h1>
  
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
  
         <input
-
           value={vorname}
-
           onChange={(e) => setVorname(e.target.value)}
-
           placeholder="Vorname"
-
           className="border p-2 rounded"
-
           required
-
         />
  
         <input
-
           value={nachname}
-
           onChange={(e) => setNachname(e.target.value)}
-
           placeholder="Nachname"
-
           className="border p-2 rounded"
-
           required
-
         />
  
         <input
-
           value={email}
-
           onChange={(e) => setEmail(e.target.value)}
-
           placeholder="E-Mail"
-
           className="border p-2 rounded"
-
           required
-
         />
  
         <input
-
           value={adresse}
-
           onChange={(e) => setAdresse(e.target.value)}
-
           placeholder="Adresse"
-
           className="border p-2 rounded"
-
           required
-
         />
  
         <input
-
           value={iban}
-
           onChange={(e) => setIban(e.target.value)}
-
           placeholder="IBAN"
-
           className="border p-2 rounded"
-
           required
-
         />
  
         <label className="flex gap-2 items-center">
  
           <input
-
             type="checkbox"
-
             checked={saveData}
-
             onChange={() => setSaveData(!saveData)}
-
           />
  
           Daten dauerhaft im Konto speichern
@@ -178,16 +138,13 @@ export default function CheckoutForm({ kunde }: any) {
         </label>
  
         <button className="bg-black text-white py-2 rounded hover:bg-gray-800">
- 
           Bestellung abschließen
- 
-        </button>
+</button>
  
       </form>
  
     </main>
-
-  );
-
-}
  
+  );
+ 
+}

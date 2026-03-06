@@ -1,33 +1,24 @@
 export const dynamic = "force-dynamic";
  
 import Link from "next/link";
-
 import { cookies } from "next/headers";
-
+ 
 import { CartProvider } from "./context/CartContext";
-
 import CartIndicator from "./components/CartIndicatir";
-
+ 
 import "./globals.css";
  
 export const metadata = {
-
-  title: "Online Buchshop",
-
+  title: "LuckyLeaf Books",
 };
  
 export default async function RootLayout({
-
   children,
-
 }: {
-
   children: React.ReactNode;
-
 }) {
  
   const cookieStore = await cookies();
-
   const userId = cookieStore.get("user_id");
  
   return (
@@ -36,46 +27,77 @@ export default async function RootLayout({
  
         <CartProvider>
  
-          <nav className="bg-white shadow p-4 flex items-center">
+          {/* Header */}
+<nav className="bg-white shadow-md px-10 py-5 flex items-center">
  
-            <Link href="/" className="font-semibold">
-
-              Bücher
+            {/* Logo */}
+<Link
+              href="/"
+              className="flex items-center gap-3 text-xl font-bold text-green-700 hover:text-green-800 transition"
+>
+<span className="text-2xl">🍀</span>
+              LuckyLeaf Books
 </Link>
  
-            <div className="ml-auto flex gap-6 items-center">
+            {/* Navigation */}
+<div className="ml-auto flex gap-6 items-center text-gray-700">
+ 
+              <Link
+                href="/"
+                className="hover:text-green-700 transition"
+>
+                Bücher
+</Link>
  
               {userId ? (
 <>
-<Link href="/konto">Mein Konto</Link>
-<a href="/api/logout">Logout</a>
+<Link
+                    href="/konto"
+                    className="hover:text-green-700 transition"
+>
+                    Mein Konto
+</Link>
+ 
+                  <a
+                    href="/api/logout"
+                    className="hover:text-green-700 transition"
+>
+                    Logout
+</a>
 </>
-
               ) : (
 <>
-<Link href="/login">Login</Link>
-<Link href="/register">Registrieren</Link>
+<Link
+                    href="/login"
+                    className="hover:text-green-700 transition"
+>
+                    Login
+</Link>
+ 
+                  <Link
+                    href="/register"
+                    className="hover:text-green-700 transition"
+>
+                    Registrieren
+</Link>
 </>
-
               )}
  
-              <CartIndicator />
+              {/* Warenkorb */}
+<CartIndicator />
  
             </div>
  
           </nav>
  
-          <div className="p-8">
-
+          {/* Seiteninhalt */}
+<main className="p-8">
             {children}
-</div>
+</main>
  
         </CartProvider>
  
       </body>
 </html>
-
   );
-
 }
- 

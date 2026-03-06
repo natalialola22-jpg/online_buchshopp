@@ -14,12 +14,12 @@ export async function POST(req: Request) {
  
     let kunden_id;
  
-    // 1️⃣ Eingeloggt → existierenden Kunden verwenden
+    // eingeloggter Kunde
     if (userId) {
  
       kunden_id = userId.value;
  
-      // optional Adresse dauerhaft speichern
+      // Adresse optional speichern
       if (saveAddress && kunde?.adresse) {
  
         await pool.query(
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
  
     } else {
  
-      // 2️⃣ Gastkunde erstellen
+      // Gastkunde erstellen
  
       const kundeResult = await pool.query(
         `INSERT INTO kunde
@@ -53,11 +53,11 @@ export async function POST(req: Request) {
  
     }
  
-    // 3️⃣ Bestellung erstellen
+    // Bestellung erstellen
  
     const bestellungResult = await pool.query(
       `INSERT INTO bestellung
-       (kunden_id, status)
+       (kunden_id,status)
        VALUES ($1,'abgeschlossen')
        RETURNING bestell_id`,
       [kunden_id]
@@ -65,15 +65,14 @@ export async function POST(req: Request) {
  
     const bestell_id = bestellungResult.rows[0].bestell_id;
  
-    // 4️⃣ Positionen speichern + Lager prüfen
+    // Positionen speichern
  
     for (const item of items) {
  
-      // Position speichern
       await pool.query(
         `INSERT INTO bestellposition
-         (bestell_id, buch_id, menge, einzelpreis)
-         VALUES ($1,$2,$3,$4)`,
+        (bestell_id,buch_id,menge,einzelpreis)
+        VALUES ($1,$2,$3,$4)`,
         [
           bestell_id,
           item.buch_id,
@@ -82,20 +81,20 @@ export async function POST(req: Request) {
         ]
       );
  
-      // Prüfen ob gedrucktes Buch
-      const gedruckt = await pool.query(
+      // prüfen ob gedrucktes Buch (hat Lager)
+ 
+      const bestand = await pool.query(
         `SELECT bestand_anzahl
          FROM gedrucktesbuch
          WHERE buch_id = $1`,
         [item.buch_id]
       );
  
-      if (gedruckt.rows.length > 0) {
+      if (bestand.rows.length > 0) {
  
-        const bestand = gedruckt.rows[0].bestand_anzahl;
+        const aktuellerBestand = bestand.rows[0].bestand_anzahl;
  
-        // prüfen ob genug Bestand vorhanden
-        if (bestand < item.menge) {
+        if (aktuellerBestand < item.menge) {
  
           return NextResponse.json(
             { error: "Nicht genug Bücher auf Lager" },
@@ -105,33 +104,23 @@ export async function POST(req: Request) {
         }
  
         // Lager reduzieren
+ 
         await pool.query(
           `UPDATE gedrucktesbuch
            SET bestand_anzahl = bestand_anzahl - $1
            WHERE buch_id = $2`,
-          [
-            item.menge,
-            item.buch_id
-          ]
+          [item.menge, item.buch_id]
         );
  
       }
  
     }
  
-    // 5️⃣ Zahlung speichern
+    // Zahlung speichern (nur wenn IBAN vorhanden)
  
     if (kunde?.iban) {
  
-      await pool.query(
-        `INSERT INTO zahlung
-         (bestell_id, zahlungsart, iban)
-         VALUES ($1,'SEPA',$2)`,
-        [
-          bestell_id,
-          kunde.iban
-        ]
-      );
+      
  
     }
  

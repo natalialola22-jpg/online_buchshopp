@@ -1,143 +1,84 @@
-import { cookies } from "next/headers";
-
-import { redirect } from "next/navigation";
-
 import { pool } from "@/lib/db";
+import Link from "next/link";
  
-export default async function BestellungDetail({
-
-  params
-
-}: {
-
-  params: { id: string }
-
-}) {
+export default async function BestellungDetail({ params }: any) {
  
-  const cookieStore = await cookies();
-
-  const userId = cookieStore.get("user_id");
- 
-  if (!userId) {
-
-    redirect("/login");
-
-  }
- 
-  const bestellId = params.id;
+  const { id } = await params;
+  const bestellId = Number(id);
  
   const result = await pool.query(
- 
-    `SELECT
-
-      b.bestell_id,
-
-      b.bestelldatum,
-
-      b.status,
-
+    `
+    SELECT 
+      b.titel,
       bp.menge,
-
       bp.einzelpreis,
-
-      bu.titel
-
-    FROM bestellung b
-
-    JOIN bestellposition bp
-
-      ON b.bestell_id = bp.bestell_id
-
-    JOIN buch bu
-
-      ON bp.buch_id = bu.buch_id
-
-    WHERE b.bestell_id = $1
-
-    AND b.kunden_id = $2`,
- 
-    [bestellId, userId.value]
- 
+      (bp.menge * bp.einzelpreis) AS gesamtpreis
+    FROM bestellposition bp
+    JOIN buch b
+      ON bp.buch_id = b.buch_id
+    WHERE bp.bestell_id = $1
+    `,
+    [bestellId]
   );
  
-  const items = result.rows;
- 
-  if (items.length === 0) {
-
-    return <p>Bestellung nicht gefunden.</p>;
-
+  if (result.rows.length === 0) {
+    return (
+<main className="p-10">
+<p>Bestellung nicht gefunden.</p>
+<Link href="/konto" className="text-blue-600 underline">
+          Zurück zum Konto
+</Link>
+</main>
+    );
   }
  
-  const datum = new Date(items[0].bestelldatum).toLocaleDateString();
-
-  const status = items[0].status;
+  const positionen = result.rows;
  
-  const gesamt = items.reduce(
-
-    (sum, i) => sum + i.menge * i.einzelpreis,
-
+  const gesamtpreis = positionen.reduce(
+    (sum: number, p: any) => sum + Number(p.gesamtpreis),
     0
-
   );
  
   return (
+<main className="max-w-3xl mx-auto p-10">
  
-    <main className="max-w-2xl mx-auto bg-white p-6 rounded shadow">
- 
-      <h1 className="text-xl font-bold mb-4">
-
+      <h1 className="text-2xl font-bold mb-6">
         Bestellung #{bestellId}
 </h1>
  
-      <p className="text-gray-600 mb-4">
-
-        Datum: {datum}
-</p>
+      <div className="bg-white p-6 rounded shadow">
  
-      <p className="text-gray-600 mb-6">
-
-        Status: {status}
-</p>
- 
-      <div className="space-y-3">
- 
-        {items.map((item:any, i:number)=>(
-<div
-
-            key={i}
-
-            className="flex justify-between border-b pb-2"
->
+        {positionen.map((p: any, i: number) => (
+<div key={i} className="flex justify-between border-b py-3">
  
             <div>
-
-              {item.titel}
-<div className="text-sm text-gray-500">
-
-                Menge: {item.menge}
-</div>
+<p className="font-semibold">{p.titel}</p>
+<p className="text-sm text-gray-500">
+                {p.menge} × {p.einzelpreis} €
+</p>
 </div>
  
-            <div>
-
-              {(item.menge * item.einzelpreis).toFixed(2)} €
-</div>
+            <p className="font-semibold">
+              {p.gesamtpreis} €
+</p>
  
           </div>
- 
         ))}
  
+        <div className="flex justify-between mt-6 text-lg font-bold">
+<span>Gesamt</span>
+<span>{gesamtpreis.toFixed(2)} €</span>
+</div>
+ 
       </div>
  
-      <div className="mt-6 text-right font-bold text-lg">
- 
-        Gesamt: {gesamt.toFixed(2)} €
- 
-      </div>
+      <Link
+        href="/konto"
+        className="inline-block mt-6 text-blue-600 underline"
+>
+        Zurück zum Konto
+</Link>
  
     </main>
- 
   );
-
 }
- 
