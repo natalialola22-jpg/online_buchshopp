@@ -10,7 +10,12 @@ export default function CheckoutForm({ kunde }: any) {
   const [vorname, setVorname] = useState(kunde?.kunden_vorname || "");
   const [nachname, setNachname] = useState(kunde?.kunden_nachname || "");
   const [email, setEmail] = useState(kunde?.email || "");
-  const [adresse, setAdresse] = useState(kunde?.adresse || "");
+ 
+  const [strasse, setStrasse] = useState(kunde?.strasse || "");
+  const [hausnummer, setHausnummer] = useState(kunde?.hausnummer || "");
+  const [plz, setPlz] = useState(kunde?.plz || "");
+  const [ort, setOrt] = useState(kunde?.ort || "");
+ 
   const [iban, setIban] = useState(kunde?.iban || "");
  
   const [saveData, setSaveData] = useState(false);
@@ -42,7 +47,10 @@ export default function CheckoutForm({ kunde }: any) {
             vorname,
             nachname,
             email,
-            adresse,
+            strasse,
+            hausnummer,
+            plz,
+            ort,
             iban
           },
  
@@ -110,9 +118,33 @@ export default function CheckoutForm({ kunde }: any) {
         />
  
         <input
-          value={adresse}
-          onChange={(e) => setAdresse(e.target.value)}
-          placeholder="Adresse"
+          value={strasse}
+          onChange={(e) => setStrasse(e.target.value)}
+          placeholder="Straße"
+          className="border p-2 rounded"
+          required
+        />
+ 
+        <input
+          value={hausnummer}
+          onChange={(e) => setHausnummer(e.target.value)}
+          placeholder="Hausnummer"
+          className="border p-2 rounded"
+          required
+        />
+ 
+        <input
+          value={plz}
+          onChange={(e) => setPlz(e.target.value)}
+          placeholder="PLZ"
+          className="border p-2 rounded"
+          required
+        />
+ 
+        <input
+          value={ort}
+          onChange={(e) => setOrt(e.target.value)}
+          placeholder="Ort"
           className="border p-2 rounded"
           required
         />
@@ -137,7 +169,7 @@ export default function CheckoutForm({ kunde }: any) {
  
         </label>
  
-        <button className="bg-black text-white py-2 rounded hover:bg-gray-800">
+        <button className="bg-green-600 text-white py-2 rounded hover:bg-green-700">
           Bestellung abschließen
 </button>
  

@@ -19,15 +19,26 @@ export async function POST(req: Request) {
  
       kunden_id = userId.value;
  
-      // Adresse optional speichern
-      if (saveAddress && kunde?.adresse) {
+      //  optional speichern
+      if (saveAddress) {
  
         await pool.query(
           `UPDATE kunde
-           SET adresse = $1,
-               iban = $2
-           WHERE kunden_id = $3`,
-          [kunde.adresse, kunde.iban, kunden_id]
+           SET
+             strasse = $1,
+             hausnummer = $2,
+             plz = $3,
+             ort = $4,
+             iban = $5
+           WHERE kunden_id = $6`,
+          [
+            kunde.strasse,
+            kunde.hausnummer,
+            kunde.plz,
+            kunde.ort,
+            kunde.iban,
+            kunden_id
+          ]
         );
  
       }
@@ -38,14 +49,18 @@ export async function POST(req: Request) {
  
       const kundeResult = await pool.query(
         `INSERT INTO kunde
-        (kunden_vorname, kunden_nachname, email, passwort_hash, adresse)
-        VALUES ($1,$2,$3,'kein_login',$4)
+        (kunden_vorname, kunden_nachname, email, passwort_hash, strasse, hausnummer, plz, ort, iban)
+        VALUES ($1,$2,$3,'kein_login',$4,$5,$6,$7,$8)
         RETURNING kunden_id`,
         [
           kunde.vorname,
           kunde.nachname,
           kunde.email,
-          kunde.adresse
+          kunde.strasse,
+          kunde.hausnummer,
+          kunde.plz,
+          kunde.ort,
+          kunde.iban
         ]
       );
  
@@ -113,14 +128,6 @@ export async function POST(req: Request) {
         );
  
       }
- 
-    }
- 
-    // Zahlung speichern (nur wenn IBAN vorhanden)
- 
-    if (kunde?.iban) {
- 
-      
  
     }
  

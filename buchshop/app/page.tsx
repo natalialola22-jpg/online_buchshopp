@@ -140,9 +140,11 @@ export default async function Home({ searchParams }: any) {
 </p>
  
                 <p className="text-sm text-gray-500 mb-3">
-                  {isEbook
-                    ? "📱 E-Book"
-                    : `📚 Gedrucktes Buch · Noch ${buch.bestand_anzahl} auf Lager`}
+  {isEbook
+    ? "📱 E-Book"
+    : `📚 Gedrucktes Buch · Noch ${
+        buch.bestand_anzahl > 10 ? "10+" : buch.bestand_anzahl
+      } auf Lager`}
 </p>
  
               </Link>

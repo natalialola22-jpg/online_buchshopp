@@ -9,7 +9,7 @@ import CartIndicator from "./components/CartIndicatir";
 import "./globals.css";
  
 export const metadata = {
-  title: "LuckyLeaf Books",
+  title: "LuckyLeaf",
 };
  
 export default async function RootLayout({
@@ -36,7 +36,7 @@ export default async function RootLayout({
               className="flex items-center gap-3 text-xl font-bold text-green-700 hover:text-green-800 transition"
 >
 <span className="text-2xl">🍀</span>
-              LuckyLeaf Books
+              LuckyLeaf
 </Link>
  
             {/* Navigation */}
