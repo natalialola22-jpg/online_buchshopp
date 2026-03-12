@@ -25,6 +25,7 @@ export async function GET() {
       g.bestand_anzahl
  
     FROM buch b
+  
  
     LEFT JOIN ebook e
 
@@ -33,6 +34,7 @@ export async function GET() {
     LEFT JOIN gedrucktesbuch g
 
       ON b.buch_id = g.buch_id
+
  
   `);
  

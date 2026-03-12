@@ -30,15 +30,27 @@ export default async function ProduktPage({
  
   const isEbook = produkt.bestand_anzahl === null;
  
+  let lagerAnzeige = "";
+ 
+  if (!isEbook) {
+    if (produkt.bestand_anzahl > 10) {
+      lagerAnzeige = "10+";
+    } else {
+      lagerAnzeige = produkt.bestand_anzahl;
+    }
+  }
+ 
   return (
 <main className="min-h-screen p-10 bg-green-50">
  
       <div className="bg-white p-8 rounded-xl shadow max-w-xl">
- <img
-  src={`https://placehold.co/400x500/16A34A/ffffff?text=${encodeURIComponent(produkt.titel)}`}
-  alt={produkt.titel}
-  className="w-full max-w-xs rounded mb-6"
-/>
+ 
+        <img
+          src={`https://placehold.co/400x500/16A34A/ffffff?text=${encodeURIComponent(produkt.titel)}`}
+          alt={produkt.titel}
+          className="w-full max-w-xs rounded mb-6"
+        />
+ 
         <h1 className="text-2xl font-bold mb-1">
           {produkt.titel}
 </h1>
@@ -54,10 +66,8 @@ export default async function ProduktPage({
         <p className="text-sm text-gray-500 mb-6">
           {isEbook
             ? "E-Book"
-            : `Gedrucktes Buch · Noch ${produkt.bestand_anzahl} auf Lager`}
+            : `Gedrucktes Buch · Noch ${lagerAnzeige} auf Lager`}
 </p>
- 
-        {/* Beschreibung */}
  
         <div className="mb-6">
  

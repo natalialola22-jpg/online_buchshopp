@@ -68,9 +68,9 @@ export default async function Home({ searchParams }: any) {
         />
  
         <select
-  name="type"
-  defaultValue={type}
-  className="appearance-none border border-green-400 bg-white text-green-900 p-2 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          name="type"
+          defaultValue={type}
+          className="appearance-none border border-green-400 bg-white text-green-900 p-2 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
 >
 <option value="">Alle</option>
 <option value="ebook">E-Book</option>
@@ -89,9 +89,9 @@ export default async function Home({ searchParams }: any) {
 </label>
  
         <select
-  name="sort"
-  defaultValue={sort}
-  className="appearance-none border border-green-400 bg-white text-green-900 p-2 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          name="sort"
+          defaultValue={sort}
+          className="appearance-none border border-green-400 bg-white text-green-900 p-2 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
 >
 <option value="">Standard</option>
 <option value="preis_asc">Preis ↑</option>
@@ -112,6 +112,16 @@ export default async function Home({ searchParams }: any) {
         {buecher.map((buch: any) => {
  
           const isEbook = buch.bestand_anzahl === null;
+ 
+          let lagerAnzeige = "";
+ 
+          if (!isEbook) {
+            if (buch.bestand_anzahl > 10) {
+              lagerAnzeige = "10+";
+            } else {
+              lagerAnzeige = buch.bestand_anzahl;
+            }
+          }
  
           return (
 <div
@@ -140,11 +150,9 @@ export default async function Home({ searchParams }: any) {
 </p>
  
                 <p className="text-sm text-gray-500 mb-3">
-  {isEbook
-    ? "📱 E-Book"
-    : `📚 Gedrucktes Buch · Noch ${
-        buch.bestand_anzahl > 10 ? "10+" : buch.bestand_anzahl
-      } auf Lager`}
+                  {isEbook
+                    ? "📱 E-Book"
+                    : `📚 Gedrucktes Buch · Noch ${lagerAnzeige} auf Lager`}
 </p>
  
               </Link>
