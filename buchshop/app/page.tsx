@@ -18,35 +18,36 @@ export default async function Home({ searchParams }: any) {
   if (sort === "titel_asc") orderBy = "b.titel ASC";
   if (sort === "titel_desc") orderBy = "b.titel DESC";
  
-  const result = await pool.query(
-    `
-    SELECT
-      b.buch_id,
-      b.titel,
-      b.preis,
-      b.autor,
-      g.bestand_anzahl
-    FROM buch b
-    LEFT JOIN gedrucktesbuch g
-      ON b.buch_id = g.buch_id
+const result = await pool.query(
+  `
+  SELECT
+    b.buch_id,
+    b.titel,
+    b.preis,
+    b.autor,
+    g.bestand_anzahl
+  FROM buch b
+  LEFT JOIN gedrucktesbuch g
+    ON b.buch_id = g.buch_id
  
-    WHERE
-      ($1 = '' OR LOWER(b.titel) LIKE LOWER('%' || $1 || '%'))
+  WHERE b.archiviert = FALSE
  
-      AND
-      ($2 = ''
-        OR ($2 = 'ebook' AND g.bestand_anzahl IS NULL)
-        OR ($2 = 'print' AND g.bestand_anzahl IS NOT NULL)
-      )
+  AND
+    ($1 = '' OR LOWER(b.titel) LIKE LOWER('%' || $1 || '%'))
  
-      AND
-      ($3 = false OR g.bestand_anzahl > 0 OR g.bestand_anzahl IS NULL)
+  AND
+    ($2 = ''
+      OR ($2 = 'ebook' AND g.bestand_anzahl IS NULL)
+      OR ($2 = 'print' AND g.bestand_anzahl IS NOT NULL)
+    )
  
-    ORDER BY ${orderBy}
-    `,
-    [q, type, available]
-  );
+  AND
+    ($3 = false OR g.bestand_anzahl > 0 OR g.bestand_anzahl IS NULL)
  
+  ORDER BY ${orderBy}
+  `,
+  [q, type, available]
+);
   const buecher = result.rows;
  
   return (

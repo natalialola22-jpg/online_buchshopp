@@ -115,11 +115,25 @@ export default async function AdminPage({ searchParams }: any) {
     LIMIT 5
   `);
  
+  /* 🔴 NEU: Lagerwarnung */
+  const lowStock = await pool.query(`
+    SELECT
+      b.buch_id,
+      b.titel,
+      g.bestand_anzahl
+    FROM buch b
+    JOIN gedrucktesbuch g
+      ON b.buch_id = g.buch_id
+    WHERE g.bestand_anzahl < 10
+    AND b.archiviert = false
+    ORDER BY g.bestand_anzahl ASC
+  `);
+ 
   const s = stats.rows[0];
  
   return (
  
-    <main className="max-w-5xl mx-auto p-10 space-y-8">
+<main className="max-w-5xl mx-auto p-10 space-y-8">
  
       <h1 className="text-3xl font-bold text-green-700">
         🍀 Admin Dashboard
@@ -149,38 +163,79 @@ export default async function AdminPage({ searchParams }: any) {
         <div className="bg-white p-6 rounded shadow">
 <p className="text-gray-500">Bestellungen</p>
 <p className="text-2xl font-bold">
-            {s.bestellungen || 0}
+{s.bestellungen || 0}
 </p>
 </div>
  
         <div className="bg-white p-6 rounded shadow">
 <p className="text-gray-500">Umsatz</p>
 <p className="text-2xl font-bold">
-            {Number(s.umsatz || 0).toFixed(2)} €
+{Number(s.umsatz || 0).toFixed(2)} €
 </p>
 </div>
  
         <div className="bg-white p-6 rounded shadow">
 <p className="text-gray-500">Verkaufte Bücher</p>
 <p className="text-2xl font-bold">
-            {s.verkaufte_buecher || 0}
+{s.verkaufte_buecher || 0}
 </p>
 </div>
  
       </div>
  
+      {/* 🔴 WARNUNG BEI NIEDRIGEM LAGERBESTAND */}
+ 
+      {lowStock.rows.length > 0 && (
+ 
+<div className="bg-orange-50 border border-orange-300 p-6 rounded shadow">
+ 
+<h2 className="text-xl font-bold text-orange-700 mb-3">
+⚠ Niedriger Lagerbestand
+</h2>
+ 
+<div className="flex flex-col gap-2">
+ 
+{lowStock.rows.map((b:any)=>(
+<div key={b.buch_id} className="flex justify-between">
+ 
+<span>{b.titel}</span>
+ 
+<span className="text-orange-700 font-semibold">
+{b.bestand_anzahl} Stück
+</span>
+ 
+</div>
+))}
+ 
+</div>
+ 
+</div>
+ 
+)}
+ 
       <SalesChart data={chartData.rows} range={range} />
  
       <BestsellerToggle data={bestseller.rows} />
  
-      <Link
-        href="/admin/buch"
-        className="inline-block bg-green-600 text-white px-6 py-3 rounded"
+      <div className="flex gap-4">
+ 
+<Link
+href="/admin/buch"
+className="inline-block bg-green-600 text-white px-6 py-3 rounded"
 >
-        Neues Buch hinzufügen
+Neues Buch hinzufügen
 </Link>
  
-    </main>
+<Link
+href="/admin/buecher"
+className="inline-block bg-white border border-green-600 text-green-700 px-6 py-3 rounded"
+>
+Bücher verwalten
+</Link>
+ 
+</div>
+ 
+</main>
  
   );
  
